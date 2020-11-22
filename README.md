@@ -24,9 +24,11 @@ Example:        lazypariah -u python3_b64 10.10.14.4 1555
 Example:        lazypariah python2_c malicious.local 1337
 
 Valid Payloads:
+    bash_tcp
     nc
     nc_pipe
-    php_dev_tcp_tags
+    perl
+    perl_c
     php_fd_3
     php_fd_3_c
     php_fd_3_tags
@@ -46,6 +48,9 @@ Valid Payloads:
     python3_c
     python_b64
     python_c
+    ruby
+    ruby_b64
+    ruby_c
 
 Valid Options:
     -h, --help                       Display help text and exit.
