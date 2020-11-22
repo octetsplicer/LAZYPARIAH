@@ -8,7 +8,6 @@ This tool is intended to be used only in authorised circumstances by qualified p
 
 ## Demonstration
 ![Alt text](./lazypariah-0.2.0.svg)
-<img src="./lazypariah-0.2.0.svg">
 
 ## Dependencies
 * Ruby >= 2.7.1 (LAZYPARIAH has not been tested on previous versions of Ruby)
