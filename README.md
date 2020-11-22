@@ -108,5 +108,3 @@ Donations in Bitcoin (BTC) are also very welcome. My BTC wallet address is as fo
 ```
 3EdoXV1w8H7y7M9ZdpjRC7GPnX4aouy18g
 ```
-
-<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="peterfunnell" data-color="#40DCA5" data-emoji="🍻" data-font="Arial" data-text="Support this developer" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>
