@@ -6,6 +6,10 @@ LAZYPARIAH is a simple tool for generating a range of reverse shell payloads on 
 
 This tool is intended to be used only in authorised circumstances by qualified penetration testers, security researchers and red team professionals. Before downloading, installing or using this tool, ensure that you understand the relevant laws in your jurisdiction. The author of this tool does not endorse the usage of this tool for illegal or unauthorised purposes.
 
+## Demonstration
+![Alt text](./lazypariah-0.2.0.svg)
+<img src="./lazypariah-0.2.0.svg">
+
 ## Dependencies
 * Ruby >= 2.7.1 (LAZYPARIAH has not been tested on previous versions of Ruby)
 
