@@ -27,7 +27,15 @@ Example:        lazypariah -u python3_b64 10.10.14.4 1555
 Example:        lazypariah python2_c malicious.local 1337
 
 Valid Payloads:
+    awk
     bash_tcp
+    c_binary
+    c_binary_b64
+    c_binary_gzip
+    c_binary_gzip_b64
+    java_class_b64
+    java_class_binary
+    java_class_gzip_b64
     nc
     nc_pipe
     perl
@@ -54,6 +62,7 @@ Valid Payloads:
     ruby
     ruby_b64
     ruby_c
+    socat
 
 Valid Options:
     -h, --help                       Display help text and exit.
