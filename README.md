@@ -7,7 +7,7 @@ LAZYPARIAH is a simple command-line tool for generating a range of reverse shell
 This tool is intended to be used only in authorised circumstances by qualified penetration testers, security researchers and red team professionals. Before downloading, installing or using this tool, please ensure that you understand the relevant laws in your jurisdiction. The author of this tool does not endorse the usage of this tool for illegal or unauthorised purposes.
 
 ## Demonstration
-![Alt text](./lazypariah-0.2.0.svg)
+![Alt text](./lazypariah.svg)
 
 ## Dependencies
 * Ruby >= 2.7.1 (LAZYPARIAH has not been tested on previous versions of Ruby)
