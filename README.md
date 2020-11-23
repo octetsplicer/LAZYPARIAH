@@ -11,6 +11,8 @@ This tool is intended to be used only in authorised circumstances by qualified p
 
 ## Dependencies
 * Ruby >= 2.7.1 (LAZYPARIAH has not been tested on previous versions of Ruby)
+* OpenJDK (Optional: Only required for `java_class` payloads.)
+* GCC (Optional: Only required for `c_binary` payloads.)
 
 ## Installation
 LAZYPARIAH can be installed as follows:
