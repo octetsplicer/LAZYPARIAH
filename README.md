@@ -74,7 +74,7 @@ Valid Options:
 ```
 
 ## Further Notes and Examples
-The payload listed above are more-or-less systematically named.
+The payloads listed above are more-or-less systematically named.
 
 Payloads ending with `_c` are intended to be executed from within a shell session. These payloads execute code directly using the relevant interpreter (e.g. `python3 -c` or `ruby -e`).
 
