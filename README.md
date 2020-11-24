@@ -1,10 +1,19 @@
 # LAZYPARIAH
-A tool for generating reverse shell payloads on the fly.
+A low-dependency command-line tool for generating reverse shell payloads on the fly.
 
 ## Description
-LAZYPARIAH is a simple command-line tool for generating a range of reverse shell payloads on the fly. It was written in pure Ruby and has no dependencies outside of the standard library.
+LAZYPARIAH is a simple and easily installable command-line tool written in pure Ruby that can be used during penetration tests and capture-the-flag (CTF) competitions to generate a range of reverse shell payloads on the fly.
 
-This tool is intended to be used only in authorised circumstances by qualified penetration testers, security researchers and red team professionals. Before downloading, installing or using this tool, please ensure that you understand the relevant laws in your jurisdiction. The author of this tool does not endorse the usage of this tool for illegal or unauthorised purposes.
+The reverse shell payloads that LAZYPARIAH supports include (but are not limited to):
+
+* Base64-encoded Python payloads: `python2_b64`, `python3_b64`
+* Java classes (compiled on the fly): `java_class_binary`, `java_class_b64`, `java_class_gzip_b64`
+* Tagged PHP payloads: `php_fd_3_tags`, `php_fd_4_tags`, `php_fd_5_tags`, `php_fd_6_tags`
+* C binary payloads (compiled on the fly): `c_binary`, `c_binary_b64`, `c_binary_gzip`, `c_binary_gzip_b64`
+* Ruby payloads: `ruby`, `ruby_b64`, `ruby_c`
+
+## Warning
+This tool is intended to be used only in authorised circumstances by qualified penetration testers, security researchers and red team professionals. Before downloading, installing or using this tool, ensure that you understand the relevant laws in your jurisdiction. The author of this tool does not endorse, encourage or condone the use of this tool for illegal or unauthorised purposes.
 
 ## Demonstration
 ![Alt text](./lazypariah.svg)
