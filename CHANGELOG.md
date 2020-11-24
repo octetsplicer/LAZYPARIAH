@@ -1,3 +1,16 @@
+# 0.4.0
+* Added the following payloads:
+	* ruby_hex
+	* python3_hex
+	* python2_hex
+	* python_hex
+	* c_binary_hex
+	* c_binary_gzip_hex
+	* perl_b64
+	* perl_hex
+* Fixed URL encoding for socat payload.
+* Fixed URL encoding for c_binary_b64 payload.
+
 # 0.3.0
 * Added the following payloads:
 	* awk
