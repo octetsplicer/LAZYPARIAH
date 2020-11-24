@@ -9,8 +9,8 @@ The reverse shell payloads that LAZYPARIAH supports include (but are not limited
 * Base64-encoded Python payloads: `python2_b64`, `python3_b64`
 * Java classes (compiled on the fly): `java_class_binary`, `java_class_b64`, `java_class_gzip_b64`
 * Tagged PHP payloads: `php_fd_3_tags`, `php_fd_4_tags`, `php_fd_5_tags`, `php_fd_6_tags`
-* C binary payloads (compiled on the fly): `c_binary`, `c_binary_b64`, `c_binary_gzip`, `c_binary_gzip_b64`
-* Ruby payloads: `ruby`, `ruby_b64`, `ruby_c`
+* C binary payloads (compiled on the fly): `c_binary`, `c_binary_b64`, `c_binary_gzip`, `c_binary_gzip_b64`, `c_binary_hex`, `c_binary_gzip_hex`
+* Ruby payloads: `ruby`, `ruby_b64`, `ruby_hex`, `ruby_c`
 
 ## Warning
 This tool is intended to be used only in authorised circumstances by qualified penetration testers, security researchers and red team professionals. Before downloading, installing or using this tool, ensure that you understand the relevant laws in your jurisdiction. The author of this tool does not endorse, encourage or condone the use of this tool for illegal or unauthorised purposes.
