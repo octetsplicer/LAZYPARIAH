@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Title: LAZYPARIAH
-# Version: 1.1.0
+# Version: 1.1.1
 # Description:
 #	LAZYPARIAH is a simple tool for generating various reverse shell payloads
 #	on the fly. It is intended to be used only in authorised circumstances by
@@ -29,7 +29,7 @@ require "stringio"
 
 # Define constants.
 PROGRAM_NAME = "LAZYPARIAH".freeze()
-PROGRAM_VERSION = "1.1.0".freeze()
+PROGRAM_VERSION = "1.1.1".freeze()
 EXECUTABLE_NAME = "lazypariah".freeze()
 
 # Define payload list.
@@ -92,7 +92,7 @@ PAYLOAD_BC_DICT = {
 # Define function for displaying program information.
 def prog_info(donation_info=true)
 	puts("#{PROGRAM_NAME} #{PROGRAM_VERSION}")
-	puts("Copyright (C) 2020 Peter Bruce Funnell")
+	puts("Copyright (C) 2020-2021 Peter Bruce Funnell")
 	if donation_info
 		puts("\nBTC Donation Address (Author): 3EdoXV1w8H7y7M9ZdpjRC7GPnX4aouy18g")
 	end
