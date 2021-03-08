@@ -1,3 +1,18 @@
+# 1.0.0
+* Added the following payloads:
+	* php_system_python_b64
+	* php_system_python_hex
+* Combined php_fd_3, php_fd_4, php_fd_5, php_fd_6 payloads into a single payload (php_fd).
+* Combined php_fd_3_c, php_fd_4_c, php_fd_5_c, php_fd_6_c payloads into a single payload (php_fd_c).
+* Combined php_fd_3_tags, php_fd_4_tags, php_fd_5_tags, php_fd_6_tags payloads into a single payload (php_fd_tags).
+* Added command-line argument "-D INTEGER"/"--fd INTEGER". This command line argument is required for the php_fd, php_fd_c and php_fd_tags payloads.
+* Combined python_c, python3_c and python2_c into a single payload (python_c).
+* Combined python_b64, python3_b64 and python2_b64 into a single payload (python_b64).
+* Combined python_hex, python3_hex and python2_hex into a single payload (python_hex).
+* Added command-line argument "-P INTEGER"/"--pv INTEGER". This command line argument is used to specify the Python version for the payload and is only taken into account for the python_c, python_b64, python_hex, php_system_python_b64 and php_system_python_hex payloads
+* New-line characters are now appended to the end of all payloads, excluding binary payloads (e.g. java_class_binary, c_binary and c_binary_gzip).
+* Added command-line argument "-N"/"--no-new-line". If this command-line argument is present, no new-line character is appended to the end of the payload.
+
 # 0.4.0
 * Added the following payloads:
 	* ruby_hex

