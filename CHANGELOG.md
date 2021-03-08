@@ -1,3 +1,6 @@
+# 1.1.1
+* Fixed an error in the copyright notice displayed to the user by versions 1.0.0 and 1.1.0.
+
 # 1.1.0
 * Implemented aliases for commands that were removed in version 1.0.0. As a result, LAZYPARIAH 1.1.0 should now be backwards compatible with versions < 1.0.0.
 
