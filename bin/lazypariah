@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Title: LAZYPARIAH
-# Version: 1.2.0
+# Version: 1.2.1
 # Description:
 #	LAZYPARIAH is a simple tool for generating various reverse shell payloads
 #	on the fly. It is intended to be used only in authorised circumstances by
@@ -29,7 +29,7 @@ require "stringio"
 
 # Define constants.
 PROGRAM_NAME = "LAZYPARIAH".freeze()
-PROGRAM_VERSION = "1.1.1".freeze()
+PROGRAM_VERSION = "1.2.1".freeze()
 EXECUTABLE_NAME = "lazypariah".freeze()
 
 # Define payload list.
