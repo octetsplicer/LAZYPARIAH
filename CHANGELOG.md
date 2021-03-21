@@ -1,3 +1,12 @@
+# 1.2.0
+* Added the following payloads:
+	* rust_binary
+	* rust_binary_gzip
+	* rust_binary_b64
+	* rust_binary_gzip_b64
+	* rust_binary_hex
+	* rust_binary_gzip_hex
+
 # 1.1.1
 * Fixed an error in the copyright notice displayed to the user by versions 1.0.0 and 1.1.0.
 
