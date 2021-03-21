@@ -1,3 +1,6 @@
+# 1.2.1
+* Fixed incorrect version number that was displayed to user in 1.2.0.
+
 # 1.2.0
 * Added the following payloads:
 	* rust_binary
