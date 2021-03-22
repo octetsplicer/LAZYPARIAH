@@ -26,7 +26,7 @@ This tool is intended to be used only in authorised circumstances by qualified p
 * Rust (Optional: Only required for `rust_binary` payloads.)
 
 ## Installation
-LAZYPARIAH can be installed on most Linux systems using the RubyGems installer as follows:
+LAZYPARIAH can be installed on most GNU/Linux and BSD systems using the RubyGems installer as follows:
 ```
 gem install lazypariah
 ```
