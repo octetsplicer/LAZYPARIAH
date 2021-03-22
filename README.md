@@ -152,7 +152,7 @@ Below is a screenshot showing the `c_binary_gzip_b64` payload in action:
 ![Alt text](./c_binary_gzip_b64_demo.png)
 
 ## Author
-Copyright (C) 2020 Peter Bruce Funnell
+Copyright (C) 2020-2021 Peter Bruce Funnell
 
 ## License
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
