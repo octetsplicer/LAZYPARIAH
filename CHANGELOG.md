@@ -1,3 +1,12 @@
+# 1.3.0
+* Fixed outdated payload names in usage examples displayed to user in help text.
+* Merged c_binary, c_binary_b64, c_binary_hex, c_binary_gzip, c_binary_gzip_b64 and c_binary_gzip_hex into a single payload called c_binary.
+* Merged rust_binary, rust_binary_b64, rust_binary_hex, rust_binary_gzip, rust_binary_gzip_b64 and rust_binary_gzip_hex into a single payload called rust_binary.
+* Merged java_class_binary, java_class_b64 and java_class_gzip_b64 into a single payload called java_class.
+* Added --b64, --hex, --gzip, --gzip_b64 and --gzip_hex command-line arguments. These command-line arguments can be used with the c_binary, rust_binary and java_class payloads to compress and/or encode the output. The names are self-explanatory; --b64 will encode the original binary payload using base-64, --hex will use hexadecimal encoding, --gzip will compress the binary using zlib, --gzip_b64 will compress the binary using zlib and encode the result in base-64, and --gzip_hex will compress the binary using zlib and output the result in hexadecimal form.
+* Added entries for c_binary_b64, c_binary_hex, c_binary_gzip, c_binary_gzip_b64, c_binary_gzip_hex, rust_binary_b64, rust_binary_hex, rust_binary_gzip, rust_binary_gzip_b64, rust_binary_gzip_hex, java_class_binary, java_class_b64 and java_class_gzip_b64 to PAYLOAD_BC_DICT to preserve backwards compatibility with versions < 1.3.0.
+* Fixed the --no-new-line command-line argument. It was not working in versions < 1.3.0.
+
 # 1.2.1
 * Fixed incorrect version number that was displayed to user in 1.2.0.
 
