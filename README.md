@@ -46,6 +46,7 @@ Valid Payloads:
     c_binary
     java_class
     nc
+    nc_openbsd
     nc_pipe
     perl
     perl_b64
@@ -56,10 +57,16 @@ Valid Payloads:
     php_fd_tags
     php_system_python_b64
     php_system_python_hex
+    php_system_python_ipv6_b64
+    php_system_python_ipv6_hex
     python
     python_b64
     python_c
     python_hex
+    python_ipv6
+    python_ipv6_b64
+    python_ipv6_c
+    python_ipv6_hex
     ruby
     ruby_b64
     ruby_c
