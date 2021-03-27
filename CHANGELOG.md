@@ -1,3 +1,8 @@
+# 1.4.0
+* Added nc_openbsd payload.
+* Added python_ipv6, python_ipv6_c, python_ipv6_b64 and python_ipv6_hex payloads.
+* Added php_system_python_ipv6_b64 and php_system_python_ipv6_hex payloads.
+
 # 1.3.0
 * Fixed outdated payload names in usage examples displayed to user in help text.
 * Merged c_binary, c_binary_b64, c_binary_hex, c_binary_gzip, c_binary_gzip_b64 and c_binary_gzip_hex into a single payload called c_binary.
