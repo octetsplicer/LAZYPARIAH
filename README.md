@@ -49,6 +49,10 @@ Valid Payloads:
     nc
     nc_openbsd
     nc_pipe
+    nodejs
+    nodejs_b64
+    nodejs_c
+    nodejs_hex
     perl
     perl_b64
     perl_c

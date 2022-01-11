@@ -1,3 +1,6 @@
+# 1.6.0
+* Added nodejs, nodejs_c, nodejs_b64 and nodejs_hex payloads.
+
 # 1.5.0
 * Added powershell_c and powershell_b64 payloads.
 
